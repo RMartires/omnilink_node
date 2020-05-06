@@ -1,10 +1,12 @@
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const puppeteer = require("puppeteer");
+const dotenv = require("dotenv");
+dotenv.config();
 
 var Airtable = require("airtable");
-var base = new Airtable({ apiKey: "key6g32DRULc2ELR4" }).base(
-  "app0XNGZWSAZxUY6M"
+var base = new Airtable({ apiKey: process.env.ATapikey }).base(
+  process.env.ATbasekey
 );
 
 exports.login = (req, res, next) => {
