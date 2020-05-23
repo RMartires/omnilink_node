@@ -27,7 +27,7 @@ exports.login = (req, res, next) => {
           const token = jwt.sign(
             {
               username: records[0].get("username"),
-              profile_picture: records[0].get("profile_picture"),
+              profile_picture: records[0].get("profile_picture")[0].url,
               recordid: records[0].id,
             },
             "heyphil123"
@@ -38,13 +38,13 @@ exports.login = (req, res, next) => {
           });
         } else {
           getprofilepicture(username).then((img) => {
-            console.log(img + " " + username);
+            // console.log(img + " " + username);
             base("users").create(
               [
                 {
                   fields: {
                     username: username,
-                    profile_picture: img,
+                    profile_picture: [{ url: img }],
                     links: [],
                   },
                 },
@@ -57,7 +57,7 @@ exports.login = (req, res, next) => {
                   const token = jwt.sign(
                     {
                       username: username,
-                      profile_picture: img,
+                      profile_picture: records[0].get("profile_picture")[0].url,
                       recordid: records[0].id,
                     },
                     "heyphil123"
@@ -88,13 +88,19 @@ async function getprofilepicture(username) {
     headless: true,
     args: ["--no-sandbox"],
   });
-  const page = await browser.newPage();
-  await page.goto(`https://www.instadp.com/fullsize/${username}`, [
-    { waitUntil: "networkidle0" },
-  ]);
-  const img = await page.$eval(".picture", (el) => el.src);
 
-  //console.log(img);
-  page.close();
+  var img = "https://www.instadp.com/";
+
+  while (img === "https://www.instadp.com/") {
+    const page = await browser.newPage();
+    await page.goto(`https://www.instadp.com/fullsize/${username}`, [
+      { waitUntil: "networkidle0" },
+    ]);
+    img = await page.$eval(".picture", (el) => el.src);
+
+    console.log(username + "  " + img);
+    page.close();
+  }
+
   return img;
 }
