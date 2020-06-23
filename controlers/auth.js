@@ -9,9 +9,8 @@ var base = new Airtable({ apiKey: process.env.ATapikey }).base(
   process.env.ATbasekey
 );
 
-exports.login = (req, res, next) => {
+exports.loginget = (req, res, next) => {
   var username = req.params.username;
-  console.log(username);
 
   base("users")
     .select({
@@ -36,40 +35,6 @@ exports.login = (req, res, next) => {
           res.json({
             token: token,
           });
-        } else {
-          getprofilepicture(username).then((img) => {
-            // console.log(img + " " + username);
-            base("users").create(
-              [
-                {
-                  fields: {
-                    username: username,
-                    profile_picture: [{ url: img }],
-                    links: [],
-                  },
-                },
-              ],
-              function (err, records) {
-                if (err) {
-                  console.error(err);
-                  return;
-                } else {
-                  const token = jwt.sign(
-                    {
-                      username: username,
-                      profile_picture: records[0].get("profile_picture")[0].url,
-                      recordid: records[0].id,
-                    },
-                    "heyphil123"
-                  );
-
-                  res.json({
-                    token: token,
-                  });
-                }
-              }
-            );
-          });
         }
       },
       (err) => {
@@ -79,6 +44,49 @@ exports.login = (req, res, next) => {
         }
       }
     );
+};
+
+exports.loginpost = (req, res, next) => {
+  var username = req.params.username;
+  var email = req.body.email;
+  var userID = req.body.userID;
+
+  getprofilepicture(username).then((img) => {
+    // console.log(img + " " + username);
+    base("users").create(
+      [
+        {
+          fields: {
+            username: username,
+            profile_picture: [{ url: img }],
+            links: [],
+            Email: email,
+            userID: userID,
+          },
+        },
+      ],
+      function (err, records) {
+        if (err) {
+          console.error(err);
+          return;
+        } else {
+          const token = jwt.sign(
+            {
+              username: username,
+              profile_picture: records[0].get("profile_picture")[0].url,
+              recordid: records[0].id,
+              firsttime: true,
+            },
+            "heyphil123"
+          );
+
+          res.json({
+            token: token,
+          });
+        }
+      }
+    );
+  });
 };
 
 async function getprofilepicture(username) {
