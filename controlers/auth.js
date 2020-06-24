@@ -62,6 +62,8 @@ exports.loginpost = (req, res, next) => {
             links: [],
             Email: email,
             userID: userID,
+            firsttime: 1,
+            theme: "13",
           },
         },
       ],
