@@ -11,6 +11,7 @@ var base = new Airtable({ apiKey: process.env.ATapikey }).base(
 
 exports.loginget = (req, res, next) => {
   var username = req.params.username;
+  var token;
 
   base("users")
     .select({
@@ -23,7 +24,7 @@ exports.loginget = (req, res, next) => {
           //console.log(records[0].get('username'));
           //console.log(records[0].get('profile_picture'));
           //console.log(records[0].get('linkslu'));
-          const token = jwt.sign(
+          token = jwt.sign(
             {
               username: records[0].get("username"),
               profile_picture: records[0].get("profile_picture")[0].url,
@@ -31,10 +32,6 @@ exports.loginget = (req, res, next) => {
             },
             "heyphil123"
           );
-
-          res.json({
-            token: token,
-          });
         }
       },
       (err) => {
@@ -42,6 +39,10 @@ exports.loginget = (req, res, next) => {
           console.error(err);
           return;
         }
+        //else
+        res.json({
+          token: token,
+        });
       }
     );
 };
