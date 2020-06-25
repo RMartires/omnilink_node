@@ -4,7 +4,7 @@ var router = express.Router();
 var authcontroler = require("../controlers/auth");
 
 /* GET home page. */
-router.post("/add/:username", authcontroler.loginpost);
+router.post("/:username", authcontroler.loginpost);
 
 router.get("/:username", authcontroler.loginget);
 

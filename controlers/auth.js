@@ -32,17 +32,19 @@ exports.loginget = (req, res, next) => {
             },
             "heyphil123"
           );
+          //else
+        } else {
+          token = "NAN";
         }
-      },
-      (err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        //else
         res.json({
           token: token,
         });
+        //end
+      },
+      (err) => {
+        if (err) {
+          return;
+        }
       }
     );
 };
