@@ -98,7 +98,7 @@ async function getprofilepicture(username) {
   const puppeteer = require("puppeteer");
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ["--no-sandbox"],
   });
 
