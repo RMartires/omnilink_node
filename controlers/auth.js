@@ -113,7 +113,7 @@ async function getprofilepicture(username) {
     img = await page.$eval(".picture", (el) => el.src);
 
     if (img.split("//")[1]) {
-      if (img.split("//")[1].split("-")[0]) {
+      if (img.split("//")[1].split("-")[0] === "scontent") {
         isimg = true;
       }
     }
