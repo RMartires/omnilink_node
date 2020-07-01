@@ -98,29 +98,22 @@ async function getprofilepicture(username) {
   const puppeteer = require("puppeteer");
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: ["--no-sandbox"],
   });
 
   var isimg = false;
   var img;
 
-  while (!isimg) {
-    var page = await browser.newPage();
-    await page.goto(`https://www.instadp.com/fullsize/${username}`, [
-      { waitUntil: "networkidle0" },
-    ]);
-    img = await page.$eval(".picture", (el) => el.src);
+  var page = await browser.newPage();
+  await page.goto(`https://www.instadp.com/fullsize/${username}`, [
+    { waitUntil: "networkidle0" },
+  ]);
 
-    if (img.split("//")[1]) {
-      if (img.split("//")[1].split("-")[0] === "scontent") {
-        isimg = true;
-      }
-    }
+  await page.on("load", () => {});
 
-    console.log(username + "  " + img);
-    page.close();
-  }
-
+  img = await page.$eval(".picture", (el) => el.src);
+  console.log(username + "  " + img);
+  page.close();
   return img;
 }
