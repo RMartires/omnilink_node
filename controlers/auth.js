@@ -111,8 +111,8 @@ async function getprofilepicture(username) {
   ]);
 
   await page.on("load", () => {});
-
-  img = await page.$eval(".picture", (el) => el.src);
+  //await page.mouse.move(100, 0);
+  img = await page.$eval(".download-btn", (el) => el.href);
   console.log(username + "  " + img);
   page.close();
   return img;
