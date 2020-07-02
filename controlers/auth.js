@@ -116,8 +116,8 @@ async function getprofilepicture(username) {
   ]);
 
   await page.on("load", () => {});
-  await page.focus(".download-btn");
-  await page.click(".download-btn");
+  //await page.focus(".download-btn");
+  //await page.click(".download-btn");
   await page.screenshot({ path: `public/images/IM_${username}.png` });
 
   img = `https://omnilink.herokuapp.com/images/IM_${username}.png`;
