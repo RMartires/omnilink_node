@@ -2,6 +2,9 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const puppeteer = require("puppeteer");
 const dotenv = require("dotenv");
+const filestack = require("filestack-js");
+const FormData = require("FormData");
+const fs = require("fs");
 dotenv.config();
 
 var Airtable = require("airtable");
@@ -96,6 +99,8 @@ exports.loginpost = (req, res, next) => {
 
 async function getprofilepicture(username) {
   const puppeteer = require("puppeteer");
+  const client = filestack.init("Am8sL0VMyTgKfJzyPEBioz");
+  const token = {};
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -106,19 +111,21 @@ async function getprofilepicture(username) {
   var img;
 
   var page = await browser.newPage();
-  await page.goto(`https://www.instagram.com/${username}`, [
+  await page.goto(`https://www.instadp.com/fullsize/${username}`, [
     { waitUntil: "networkidle0" },
   ]);
 
   await page.on("load", () => {});
-  img = await page.evaluate(() => {
-    return document.querySelectorAll("img")[0].src;
-  });
+  await page.focus(".download-btn");
+  await page.click(".download-btn");
+  await page.screenshot({ path: `public/images/IM_${username}.png` });
 
-  //await page.mouse.move(100, 0);
-  // img = await page.$eval(".download-btn", (el) => el.href);
-  // console.log(username + "  " + img);
-  // page.close();
+  img = `https://omnilink.herokuapp.com/images/IM_${username}.png`;
+
+  //
+  //
+  page.close();
   console.log(username + " " + img);
-  //return img;
+
+  return img;
 }

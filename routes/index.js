@@ -4,6 +4,6 @@ var router = express.Router();
 var indexControler = require("../controlers/index");
 
 /* GET home page. */
-router.get("/", indexControler.test);
+router.get("/:name", indexControler.sendimage);
 
 module.exports = router;
