@@ -117,12 +117,19 @@ async function getprofilepicture(username, id) {
   });
 
   //
+  await page.screenshot({
+    path: `public/images/${username}1.png`,
+    fullPage: true,
+  });
   await page.evaluate((username) => {
     document.querySelectorAll(".search-btn")[0].click();
     document.querySelectorAll(".search-input")[0].value = username;
     document.querySelectorAll(".search-btn")[1].click();
   }, username);
-
+  await page.screenshot({
+    path: `public/images/${username}2.png`,
+    fullPage: true,
+  });
   // await page.focus(".download-btn");
   // await page.click(".download-btn");
 
@@ -138,6 +145,10 @@ async function getprofilepicture(username, id) {
     }
     if (resjson) {
       if (resjson.users) {
+        await page.screenshot({
+          path: `public/images/${username}3.png`,
+          fullPage: true,
+        });
         img = resjson.users[0].user.profile_pic_url;
         page.close();
         console.log(username + "  " + img);
