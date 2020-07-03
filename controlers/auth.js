@@ -6,8 +6,10 @@ const filestack = require("filestack-js");
 const FormData = require("FormData");
 const fs = require("fs");
 dotenv.config();
+var img;
 
 var Airtable = require("airtable");
+const { resolve } = require("path");
 var base = new Airtable({ apiKey: process.env.ATapikey }).base(
   process.env.ATbasekey
 );
@@ -99,8 +101,6 @@ exports.loginpost = (req, res, next) => {
 
 async function getprofilepicture(username) {
   const puppeteer = require("puppeteer");
-  const client = filestack.init("Am8sL0VMyTgKfJzyPEBioz");
-  const token = {};
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -108,24 +108,45 @@ async function getprofilepicture(username) {
   });
 
   var isimg = false;
-  var img;
 
   var page = await browser.newPage();
-  await page.goto(`https://www.instadp.com/fullsize/${username}`, [
-    { waitUntil: "networkidle0" },
-  ]);
+  await page.goto(`https://www.instadp.com/`, [{ waitUntil: "networkidle0" }]);
 
-  await page.on("load", () => {});
-  //await page.focus(".download-btn");
-  //await page.click(".download-btn");
-  await page.screenshot({ path: `public/images/IM_${username}.png` });
+  //await page.on("load", () => {});
+  page.exposeFunction("gotimage", (url) => {
+    console.log(url);
+    console.log("hey");
+  });
 
-  img = `https://omnilink.herokuapp.com/images/IM_${username}.png`;
+  //
+  await page.evaluate((username) => {
+    document.querySelectorAll(".search-btn")[0].click();
+    document.querySelectorAll(".search-input")[0].value = username;
+    document.querySelectorAll(".search-btn")[1].click();
+  }, username);
+
+  // await page.focus(".download-btn");
+  // await page.click(".download-btn");
 
   //
   //
-  page.close();
-  console.log(username + " " + img);
-
-  return img;
+  //page.close();
+  return new Promise((resolve) => {
+    page.on("requestfinished", async (request) => {
+      var resjson;
+      try {
+        resjson = await request.response().json();
+      } catch (err) {
+        //console.log(err);
+      }
+      if (resjson) {
+        if (resjson.users) {
+          img = resjson.users[0].user.profile_pic_url;
+          page.close();
+          console.log(username + "  " + img);
+          resolve(img);
+        }
+      }
+    });
+  });
 }
