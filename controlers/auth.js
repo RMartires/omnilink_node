@@ -60,48 +60,41 @@ exports.loginpost = (req, res, next) => {
   var userID = req.body.userID;
 
   // console.log(img + " " + username);
-  axios({
-    url: `https://www.instagram.com/web/search/topsearch/?context=blended&query=${username}&include_reel=false&count=50`,
-    method: "GET",
-  }).then((response) => {
-    console.log(response.data.users[0].user.profile_pic_url);
-    var img = response.data.users[0].user.profile_pic_url;
-    base("users").create(
-      [
-        {
-          fields: {
-            username: username,
-            profile_pic_url: [{ url: img }],
-            links: [],
-            Email: email,
-            userID: userID,
-            firsttime: 1,
-            theme: "13",
-          },
+  base("users").create(
+    [
+      {
+        fields: {
+          username: username,
+          profile_pic_url: [{ url: img }],
+          links: [],
+          Email: email,
+          userID: userID,
+          firsttime: 1,
+          theme: "13",
         },
-      ],
-      function (err, records) {
-        if (err) {
-          console.error(err);
-          return;
-        } else {
-          //getprofilepicture(username, records[0].id).then((res) => {});
-          const token = jwt.sign(
-            {
-              username: username,
-              recordid: records[0].id,
-              firsttime: true,
-            },
-            "heyphil123"
-          );
+      },
+    ],
+    function (err, records) {
+      if (err) {
+        console.error(err);
+        return;
+      } else {
+        getprofilepicture(username, records[0].id).then((res) => {});
+        const token = jwt.sign(
+          {
+            username: username,
+            recordid: records[0].id,
+            firsttime: true,
+          },
+          "heyphil123"
+        );
 
-          res.json({
-            token: token,
-          });
-        }
+        res.json({
+          token: token,
+        });
       }
-    ); //end base.create
-  }); //end fetch
+    }
+  ); //end base.create
 };
 
 async function getprofilepicture(username, id) {
