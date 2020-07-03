@@ -59,47 +59,45 @@ exports.loginpost = (req, res, next) => {
   var email = req.body.email;
   var userID = req.body.userID;
 
-  getprofilepicture(username).then((img) => {
-    // console.log(img + " " + username);
-    base("users").create(
-      [
-        {
-          fields: {
-            username: username,
-            profile_picture: [{ url: img }],
-            links: [],
-            Email: email,
-            userID: userID,
-            firsttime: 1,
-            theme: "13",
-          },
+  // console.log(img + " " + username);
+  base("users").create(
+    [
+      {
+        fields: {
+          username: username,
+          links: [],
+          Email: email,
+          userID: userID,
+          firsttime: 1,
+          theme: "13",
         },
-      ],
-      function (err, records) {
-        if (err) {
-          console.error(err);
-          return;
-        } else {
-          const token = jwt.sign(
-            {
-              username: username,
-              profile_picture: records[0].get("profile_picture")[0].url,
-              recordid: records[0].id,
-              firsttime: true,
-            },
-            "heyphil123"
-          );
+      },
+    ],
+    function (err, records) {
+      if (err) {
+        console.error(err);
+        return;
+      } else {
+        getprofilepicture(username, records[0].id).then((res) => {});
 
-          res.json({
-            token: token,
-          });
-        }
+        const token = jwt.sign(
+          {
+            username: username,
+            recordid: records[0].id,
+            firsttime: true,
+          },
+          "heyphil123"
+        );
+
+        res.json({
+          token: token,
+        });
       }
-    );
-  });
+    }
+  );
 };
 
-async function getprofilepicture(username) {
+async function getprofilepicture(username, id) {
   const puppeteer = require("puppeteer");
 
   const browser = await puppeteer.launch({
@@ -131,22 +129,44 @@ async function getprofilepicture(username) {
   //
   //
   //page.close();
-  return new Promise((resolve) => {
-    page.on("requestfinished", async (request) => {
-      var resjson;
-      try {
-        resjson = await request.response().json();
-      } catch (err) {
-        //console.log(err);
+  page.on("requestfinished", async (request) => {
+    var resjson;
+    try {
+      resjson = await request.response().json();
+    } catch (err) {
+      //console.log(err);
+    }
+    if (resjson) {
+      if (resjson.users) {
+        img = resjson.users[0].user.profile_pic_url;
+        page.close();
+        console.log(username + "  " + img);
+        //
+        base("users").update(
+          [
+            {
+              id: id,
+              fields: {
+                profile_picture: [
+                  {
+                    url: img,
+                  },
+                ],
+              },
+            },
+          ],
+          function (err, records) {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            records.forEach(function (record) {
+              console.log(record.get("userID"));
+            });
+          }
+        );
+        //
       }
-      if (resjson) {
-        if (resjson.users) {
-          img = resjson.users[0].user.profile_pic_url;
-          page.close();
-          console.log(username + "  " + img);
-          resolve(img);
-        }
-      }
-    });
+    }
   });
 }
