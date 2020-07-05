@@ -58,14 +58,15 @@ exports.loginpost = (req, res, next) => {
   var username = req.params.username;
   var email = req.body.email;
   var userID = req.body.userID;
+  var img = req.body.img;
 
-  // console.log(img + " " + username);
+  //
   base("users").create(
     [
       {
         fields: {
           username: username,
-          profile_pic_url: [{ url: img }],
+          profile_picture: [{ url: img }],
           links: [],
           Email: email,
           userID: userID,
@@ -79,7 +80,7 @@ exports.loginpost = (req, res, next) => {
         console.error(err);
         return;
       } else {
-        getprofilepicture(username, records[0].id).then((res) => {});
+        //getprofilepicture(username, records[0].id).then((res) => {});
         const token = jwt.sign(
           {
             username: username,
